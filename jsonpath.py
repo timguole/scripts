@@ -11,8 +11,9 @@ def get_object(obj, path):
 
         Path starts with a `/` and each component in a path is either
         index of a list or key in a dict. `*` means all element in a list
-        or all values in a dict. `?` means all keys in a dict and is only 
-        valid as the last component of a path.
+        or all values in a dict. `?` means all keys in a dict or the
+        length of a list. And `?` is only valid as the last component of
+        a path.
 
         Path examples:
             "/a/b/c"
@@ -26,14 +27,20 @@ def get_object(obj, path):
     _l = list(shlex(path, posix=True, punctuation_chars='/'))
     p = [element for element in _l if not re.match(r'^/+$', element)]
     def _find(o, k, v):
-        if len(k) == 0:
-            return
         if isinstance(o, list):
-            if k[0] == '*':
-                for _o in o:
-                    _find(_o, k[1:], v)
+            if len(k) == 1:
+                if k[0] == '*':
+                    v.extend(o)
+                elif k[0] == '?':
+                    v.append(len(o))
+                else:
+                    v.append(o[int(k[0])])
             else:
-                _find(o[int(k[0])], k[1:], v)
+                if k[0] == '*':
+                    for _o in o:
+                        _find(_o, k[1:], v)
+                else:
+                    _find(o[int(k[0])], k[1:], v)
         elif isinstance(o, dict):
             if len(k) == 1:
                 if k[0] == '*':
