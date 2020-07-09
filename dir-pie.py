@@ -18,6 +18,7 @@ def show_dir_pie(path):
         x.append(i[0])
         labels.append(i[1])
     plt.pie(x, labels=labels, autopct='%1.1f%%')
+    plt.title(f'du -s {path}/*')
     plt.show()
 
 
