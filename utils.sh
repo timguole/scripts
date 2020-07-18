@@ -1,7 +1,7 @@
 # Join values with delimiter
 # join <delimiter> <value1> <value2> ...
 # The result is: <v><d><v><d><v>...
-function join()
+function join_args()
 {
 	local delimit=$1;
 	local f1=$2;
