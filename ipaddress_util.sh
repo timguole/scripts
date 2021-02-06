@@ -9,18 +9,19 @@ function ip2i() {
 	if ! echo "$1" | grep -Eq '^((0|[1-9][0-9]{0,2})\.){3}(0|[1-9][0-9]{0,2})$'; then
 		return 1;
 	fi
-	echo "$1" | awk -F'.' '{print $1, $2, $3, $4;}' \
-			| while read q1 q2 q3 q4; do
-		# The first part of an IPv4 address in a dotted-quad format is
-		# between 1 and 255
-		if [[ q1 -lt 1 || q1 -gt 255 \
-				|| q2 -lt 0 || q2 -gt 255 \
-				|| q3 -lt 0 || q3 -gt 255 \
-				|| q4 -lt 0 || q4 -gt 255 ]]; then
-			return 1;
-		fi
-		echo $(( (q1 << 24) + (q2 << 16) + (q3 << 8) + q4));
-	done
+
+	read q1 q2 q3 q4 < <(echo "$1" | awk -F'.' '{print $1, $2, $3, $4;}')
+
+	# The first part of an IPv4 address in a dotted-quad format is
+	# between 1 and 255
+	if [[ q1 -lt 1 || q1 -gt 255 \
+			|| q2 -lt 0 || q2 -gt 255 \
+			|| q3 -lt 0 || q3 -gt 255 \
+			|| q4 -lt 0 || q4 -gt 255 ]]; then
+		return 1;
+	fi
+
+	echo $(( (q1 << 24) + (q2 << 16) + (q3 << 8) + q4));
 }
 
 # Convert an integer to an IPv4 address
