@@ -11,7 +11,9 @@ function ip2i() {
 	fi
 	echo "$1" | awk -F'.' '{print $1, $2, $3, $4;}' \
 			| while read q1 q2 q3 q4; do
-		if [[ q1 -lt 0 || q1 -gt 255 \
+		# The first part of an IPv4 address in a dotted-quad format is
+		# between 1 and 255
+		if [[ q1 -lt 1 || q1 -gt 255 \
 				|| q2 -lt 0 || q2 -gt 255 \
 				|| q3 -lt 0 || q3 -gt 255 \
 				|| q4 -lt 0 || q4 -gt 255 ]]; then
