@@ -60,6 +60,38 @@ function validate_netmask() {
 	return 1;
 }
 
+# Convert a dotted-quad netmask to a prefix length
+# e.g.
+#	255.255.255.0 => 24
+# $1: an IPv4 netmask in dotted-quad format
+function dot2len() {
+	local i=$(ip2i "$1");
+	if [[ -z "$i" ]]; then
+		return 1;
+	fi
+	for e in $(seq 0 31); do
+		m=$((0xffffffff - (2 ** e) + 1 ));
+		if [[ $m -eq $i ]]; then
+			echo $((32 - e));
+			return 0;
+		fi
+	done
+	return 1;
+}
+
+# Convert a prefix length to a dotted-quad netmask
+# e.g.
+#	24 => 255.255.255.0
+# $1: an IPv4 netmask prefix length
+function len2dot() {
+	if [[ "$1" -lt 1 || "$1" -gt 32 ]]; then
+		return 1;
+	fi
+
+	m=$((0xffffffff - (2 ** (32 - $1)) + 1 ));
+	echo $(i2ip $m);
+}
+
 # Output the netwok of a pair of IPv4 address and netmask
 # e.g.
 #	1.1.1.1 255.0.0.0 => 1.0.0.0
