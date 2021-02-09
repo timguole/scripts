@@ -52,13 +52,9 @@ function validate_netmask() {
 	if [[ -z "$i" ]]; then
 		return 1;
 	fi
-	for e in $(seq 0 31); do
-		m=$((0xffffffff - (2 ** e) + 1 ));
-		if [[ $m -eq $i ]]; then
-			return 0;
-		fi
-	done
-	return 1;
+
+	ii=$(( ( (~i) & 0xffffffff) >> 1 ));
+	return $(( (i & ii) != 0));
 }
 
 # Convert a dotted-quad netmask to a prefix length
