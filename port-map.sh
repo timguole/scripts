@@ -2,12 +2,9 @@
 # Map local_ip:local_port to remote_host:remote_port
 # Make sure that net.ipv4.ip_forward = 1
 
-# If there is a new host, append it to the list and re-run this script.
-# NOTE: local port must be in the range `port_range`
-#
-# Format: <remote_ip>:<remote_port>,<local_port>,<protocol>
-# Each entry in the list is seperated by space
-host_list=''
+# host_list is an array of hosts.
+# List element format: '<remote_ip>:<remote_port>,<local_port>,<protocol>'
+host_list=();
 
 port_range=''; # Format: <start-port>:<end-port>
 external_ip='' # DNAT address
@@ -29,7 +26,7 @@ function get_field()
 
 # Check port duplication
 echo "Checking for port duplication ...";
-for h in $host_list; do
+for h in "${host_list[@]}"; do
 	local_port=$(get_field $h 2);
 
 	if grep -q -E "^$local_port\$" $used_ports; then
