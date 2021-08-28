@@ -24,7 +24,9 @@ def get_object(obj, path):
     # Convert string into a list
     # e.g.
     # from '/a/b/c' to ['a', 'b', 'c']
-    _l = list(shlex(path, posix=True, punctuation_chars='/'))
+    _s = shlex(path, posix=True, punctuation_chars='/*?')
+    _s.worchars += '@'
+    _l = list(_s)
     p = [element for element in _l if not re.match(r'^/+$', element)]
     def _find(o, k, v):
         if isinstance(o, list):
