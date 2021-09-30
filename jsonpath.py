@@ -1,7 +1,62 @@
 #!/usr/bin/python3
 
 from shlex import shlex
+import sys
 import re
+import io
+
+
+class JSONPath:
+	'''
+	Split a path into path elements. The default elements seperator is
+	slash (/)
+	e.g.
+		jp = JSONPath("/a/b/c")
+		pl = list(jp.items()) # pl is ["a", "b", "c"]
+	'''
+	def __init__(self, path, sep='/'):
+		'''
+		path: a string
+		sep: the elements seperator character, the default is slash
+		'''
+		self.sio= io.StringIO(path)
+		self.sep = sep
+		self.elements = []
+		self.ready = False
+
+
+	def __getchar(self):
+		self.curr = self.sio.read(1)
+		return self.curr
+
+
+	def __split(self):
+		ele = ''
+		self.elements = []
+		while self.__getchar() != '':
+			c = self.curr
+			if c == self.sep:
+				if ele != '':
+					self.elements.append(ele)
+					ele = ''
+			elif c == '\\':
+				ele += self.__getchar()
+			else:
+				ele += c
+		if ele != '':
+			self.elements.append(ele)
+		self.ready = True
+
+
+	def items(self):
+		'''
+		This method returns a generator
+		'''
+		if not self.ready:
+			self.__split()
+		for e in self.elements:
+			yield e
+
 
 def get_object(obj, path):
 	''' Get object from a loaded json document.
@@ -24,10 +79,9 @@ def get_object(obj, path):
 	# Convert string into a list
 	# e.g.
 	# from '/a/b/c' to ['a', 'b', 'c']
-	_s = shlex(path, posix=True, punctuation_chars='/*?')
-	_s.worchars += '@'
-	_l = list(_s)
-	p = [element for element in _l if not re.match(r'^/+$', element)]
+	jp = JSONPath(path)
+	p = list(jp.items())
+	print(p)
 	def _find(o, k, v):
 		if isinstance(o, list):
 			if len(k) == 1:
@@ -68,12 +122,15 @@ def get_object(obj, path):
 	return values
 
 
+def printerr(msg):
+	print(msg, file=sys.stderr)
+
+
 if __name__ == '__main__':
 	import json
-	import sys
 
 	if len(sys.argv) == 1:
-		print('Usage: {} <path> [<json-file>]'.format(sys.argv[0]))
+		printerr('Usage: {} <path> [<json-file>]'.format(sys.argv[0]))
 		exit(1)
 
 	json_file = sys.stdin
@@ -83,8 +140,8 @@ if __name__ == '__main__':
 	try:
 		jobject = json.load(json_file)
 	except json.JSONDecodeError as e:
-		print('Failed to decode the input', file=sys.stderr)
-		print(e, file=sys.stderr)
+		printerr('Failed to decode the input')
+		printerr(e)
 		exit(1)
 	v = get_object(jobject, sys.argv[1])
 	print(v)
