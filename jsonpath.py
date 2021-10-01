@@ -76,12 +76,6 @@ def get_object(obj, path):
 			"/a/21/c"
 			"/a/?"
 		'''
-	# Convert string into a list
-	# e.g.
-	# from '/a/b/c' to ['a', 'b', 'c']
-	jp = JSONPath(path)
-	p = list(jp.items())
-	print(p)
 	def _find(o, k, v):
 		if isinstance(o, list):
 			if len(k) == 1:
@@ -118,7 +112,7 @@ def get_object(obj, path):
 					_find(o[k[0]], k[1:], v)
 
 	values = []
-	_find(obj, p, values)
+	_find(obj, path, values)
 	return values
 
 
@@ -128,14 +122,22 @@ def printerr(msg):
 
 if __name__ == '__main__':
 	import json
+	import argparse
 
-	if len(sys.argv) == 1:
-		printerr('Usage: {} <path> [<json-file>]'.format(sys.argv[0]))
-		exit(1)
-
-	json_file = sys.stdin
-	if len(sys.argv) == 3:
-		json_file = open(sys.argv[2])
+	ap = argparse.ArgumentParser(description='Get data from a JSON file.')
+	ap.add_argument('-s', default='/',
+			help='Path elements seperator, default is slash')
+	ap.add_argument('-f', default='',
+			help='Path to a JSON file, default is stdin')
+	ap.add_argument('-p', required=True, help='a file-path-like string')
+	args = ap.parse_args()
+	seperator = args.s[0]
+	path_str = args.p
+	jf = args.f
+	if len(jf) == 0:
+		json_file = sys.stdin
+	else:
+		json_file = open(jf)
 
 	try:
 		jobject = json.load(json_file)
@@ -143,6 +145,11 @@ if __name__ == '__main__':
 		printerr('Failed to decode the input')
 		printerr(e)
 		exit(1)
-	v = get_object(jobject, sys.argv[1])
+	jp = JSONPath(path_str, seperator)
+	path_list = list(jp.items())
+	if len(path_list) == 0:
+		printerr('Invalid path')
+		exit(1)
+	v = get_object(jobject, path_list)
 	print(v)
 
