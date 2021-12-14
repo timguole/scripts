@@ -102,6 +102,10 @@ int main(int argn, const char *argv)
 	check_pam_error(pamh, ret);
 	pam_end(pamh, ret);
 
-	return ret;
+	if (ret != PAM_SUCCESS) {
+		return PAMAUTH_ERROR;
+	} else {
+		return PAMAUTH_OK;
+	}
 }
 
