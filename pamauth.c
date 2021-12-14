@@ -100,6 +100,8 @@ int main(int argn, const char *argv)
 	check_pam_error(pamh, ret);
 	ret = pam_authenticate(pamh, PAM_DISALLOW_NULL_AUTHTOK);
 	check_pam_error(pamh, ret);
+	ret = pam_acct_mgmt(pamh, PAM_DISALLOW_NULL_AUTHTOK);
+	check_pam_error(pamh, ret);
 	pam_end(pamh, ret);
 
 	if (ret != PAM_SUCCESS) {
