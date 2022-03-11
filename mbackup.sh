@@ -1,4 +1,6 @@
 #!/bin/bash
+# Perform an online data backup of MariaDB server
+#
 # The backup policy is:
 #	- do a full backup on Sunday.
 #	- if there is no previous backup, do a full backup even it is not Sun.
@@ -37,12 +39,12 @@ mkdir -p $backup_dir;
 
 if [[ $backup_type == 'full' ]]; then
 	echo Making a full backup;
- 	xtrabackup --user=$username --pass=$password --backup \
+ 	mariabackup --user=$username --password=$password --backup \
 			--defaults-file=$my_cnf \
 			--target-dir=$today_dir;
 else
 	echo Makeing an incremental backup;
- 	xtrabackup --user=$username --pass=$password --backup \
+ 	mariabackup --user=$username --password=$password --backup \
 			--defaults-file=$my_cnf \
 			--target-dir=$today_dir \
 			--incremental-basedir=$yesterday_dir;
