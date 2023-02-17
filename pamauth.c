@@ -33,7 +33,7 @@ static int auth_conv(int num_msg, const struct pam_message **msg,
 		goto bailout;
 	}
 
-	struct pam_response *resp_array = calloc(num_msg,  sizeof(struct pam_response));
+	struct pam_response *resp_array = calloc(num_msg, sizeof(struct pam_response));
 	if (resp_array == NULL) {
 		goto bailout;
 	}
