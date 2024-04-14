@@ -1,0 +1,19 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[ req_distinguished_name ]
+CN = "my-server"
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = "my-server-name1"
+DNS.2 = "my-server-name2"
+DNS.3 = "10.10.10.1"
+IP.1 = "10.10.10.1"
+IP.2 = "10.10.11.1"
