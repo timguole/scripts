@@ -7,8 +7,8 @@ DEST_DIR=PATH-TO-SAVE-MYSQL-SQL-FILES;
 
 for sf in $SRC_DIR/*.tab; do
 	echo Processing $sf;
-	df=$DEST_DIR/$(basename $sf);
-	iconv.exe -f GBK -t UTF-8 $sf > $df;
+	df=$DEST_DIR/$(basename $sf | sed -r -e 's/tab$/sql/');
+	iconv -f GBK -t UTF-8 $sf | tr -d '\r' > $df;
 
 	# remove tablespace info
 	sed -i -r -e '/^tablespace/,/  \);/d' $df;
@@ -45,16 +45,20 @@ for sf in $SRC_DIR/*.tab; do
 	done
 
 	# process data types
-	sed -i -r -e 's/ VARCHAR2/VARCHAR/' \
-			-e 's/ INTEGER/BIGINT/' \
-			-e 's/ NUMBER\([0-9,]+\)/BIGINT/' \
-			-e 's/ NUMBER( |$)/BIGINT/' \
+	sed -i -r -e 's/ VARCHAR2/ VARCHAR/' \
+			-e 's/ INTEGER/ BIGINT/' \
+			-e 's/ NUMBER\([0-9,]+\)/ BIGINT/' \
+			-e 's/ NUMBER$/ BIGINT/' \
+			-e 's/ NUMBER / BIGINT /' \
+			-e 's/ NUMBER,/ BIGINT,/' \
 			$df;
 
 	# process alter table primary key
 	sed -i -r -e '/^alter table/N; s/\n//' $df;
 	pk=$(grep -Eo 'primary key \(.+\)' $df);
 	sed -i -r -e "/^\\)/i\  $pk" \
-			-e '/^alter table.*add constraint.*primary key/d' \
+			-e '/^alter table.*primary key/d' \
+			-e '/^  using index/d' \
 			$df
+	sed -i -r -e '/^\)$/s/$/;/' $df
 done
