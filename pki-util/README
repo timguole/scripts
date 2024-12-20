@@ -1,0 +1,3 @@
+Eidt the following two files:
+	create-certs.sh: modify variables
+	sign-request.cnf: modify distinguish name properties, dns, ip.

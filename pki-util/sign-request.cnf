@@ -1,0 +1,28 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[ req_distinguished_name ]
+# FIXME: edit these accordingly
+C = ''
+L = ''
+O = ''
+OU = ''
+CN = ""
+emailAddress = ''
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[ alt_names ]
+# FIXME: use real dns names and ip addresses
+DNS.1 = "my-dns-name-1"
+DNS.2 = "my-dns-name-2"
+# Add more dns names as needed
+
+IP.1 = "192.168.1.1"
+IP.2 = "192.168.1.2"
+# Add more IP addresses as needed
