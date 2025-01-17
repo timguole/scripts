@@ -169,24 +169,24 @@ class iLO:
     }
 
 
-    def __init__(self, ilo_host, ilo_user, ilo_password):
+    def __init__(self, ilo_host, ilo_user, ilo_password, timeout = 10):
         '''Create an iLO object.
-        
+
         Args:
         ilo_host: "https://<iLO_IP>"
         ilo_user: iLO user name
         ilo_password: iLO login password
         '''
         self.cache = {} # cache for uri and response
-        self.timeout = 10
-        self.rest_obj = None
+        self.timeout = timeout
+        self.rf_client = None
         self.ilo_host = ilo_host
         self.ilo_user = ilo_user
         self.ilo_password = ilo_password
 
     def _get_uri(self, path, use_cache = True):
         if (path not in self.cache.keys()) or (not use_cache):
-            obj = self.rest_obj.get(path, None).obj
+            obj = self.rf_client.get(path, None).obj
             self.cache[path] = obj
         return self.cache[path]
 
@@ -223,27 +223,28 @@ class iLO:
 
     def login(self):
         '''Login to iLO.
-        
+
         Call this method right after iLO() and before any iLO.get_xxx().
         '''
-        self.rest_obj = redfish.rest_client( \
+        self.rf_client = redfish.redfish_client( \
             base_url = self.ilo_host, \
             username = self.ilo_user, \
             password = self.ilo_password, \
-            default_prefix = '/rest/v1')
-        self.rest_obj.login(auth = 'session')
+            default_prefix = '/rest/v1', \
+			timeout = self.timeout)
+        self.rf_client.login(auth = 'session')
 
     def logout(self):
         '''Logout from iLO.
 
         Call this method to finish this session
         '''
-        if self.rest_obj is not None:
-            self.rest_obj.logout()
+        if self.rf_client is not None:
+            self.rf_client.logout()
 
     def get_system(self, resource, extra = None, use_cache = True):
         '''Get system resources, e.g., CPU status, memory status etc.
-        
+
         Args:
         resource: iLO-defined resource name, e.g., iLO.CPU_COUNT
         extra: extra resource IDs. Some resources need it.
@@ -289,7 +290,7 @@ class iLO:
 
     def raw_get(self, uri, keys, use_cache = True):
         '''Get resource with URI and property names.
-        
+
         Args:
         uri: resource uri
         keys: a list of property names to find the value
@@ -305,7 +306,7 @@ class iLO:
 
     def get_id(self, uri):
         '''Get resource id.
-        
+
         Args:
         uri: the uri returned by get_system(), get_chassis(), get_manager()
 
