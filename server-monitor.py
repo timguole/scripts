@@ -15,12 +15,13 @@ ip2
 ...
 '''
 
-from ilo import iLO
+import os
 import sys
-import configparser
 import signal
+import configparser
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import as_completed
+from ilo import iLO
 
 
 fmt_str = '{:>15}{:>10}{:>7}{:>11}'
@@ -46,9 +47,10 @@ if __name__ == '__main__':
 		exit(0)
 	signal.signal(signal.SIGINT, ki_handler)
 
+	rootdir = os.path.dirname(sys.argv[0])
 	config = configparser.ConfigParser()
 	try:
-		config.read_file(open('servers.cfg'))
+		config.read_file(open(os.path.join(rootdir, 'servers.cfg')))
 	except Exception:
 		print('Failed to open config file', file=sys.stderr)
 		exit(1)
@@ -77,6 +79,5 @@ if __name__ == '__main__':
 	print(fmt_str.format('Server_IP', 'Health', 'Power', 'AutoOn'))
 	for i in results:
 		print(i)
-
 	exit(0)
 
