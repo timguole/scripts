@@ -45,6 +45,8 @@ class JSONPath:
 				ele += c
 		if ele != '':
 			self.elements.append(ele)
+		if len(self.elements) == 0:
+			raise ValueError('Empty path')
 		self.ready = True
 
 
@@ -147,9 +149,6 @@ if __name__ == '__main__':
 		exit(1)
 	jp = JSONPath(path_str, seperator)
 	path_list = list(jp.items())
-	if len(path_list) == 0:
-		printerr('Invalid path')
-		exit(1)
 	v = get_object(jobject, path_list)
 	print(v)
 
