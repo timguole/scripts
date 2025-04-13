@@ -113,7 +113,7 @@ class JSONPath:
 
 
 def printerr(msg):
-	print(msg, file=sys.stderr)
+	print('Error: ', msg, file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -145,6 +145,7 @@ if __name__ == '__main__':
 		printerr(e)
 		exit(1)
 	except Exception as e:
+		printerr('Failed to find value')
 		printerr(e)
 		exit(1)
 
